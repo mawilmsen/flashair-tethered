@@ -16,13 +16,13 @@ class FlashairAPI(object):
         self.synced_files = []
         self.last_content_hash = None
 
-        self._init_cache()
         self.root_dir = '/DCIM'
         self.timeout = 3
 
         logging.getLogger('requests').setLevel(logging.WARNING)
         logging.getLogger("urllib3").setLevel(logging.WARNING)
 
+        self._init_cache()
 
     def _init_cache(self):
         path = os.path.abspath(self.target_dir)
@@ -32,22 +32,18 @@ class FlashairAPI(object):
                 if file_name.lower().endswith(".jpg"):
                     subdir_path = root.split(path)[1]
                     full_name = os.path.join(subdir_path, file_name)
-                    self.synced_files.append(full_name)
+                    self.synced_files.append(full_name.replace('\\', '/'))
 
     @property
     def _ts(self):
         return int(time.time() * 1000)
 
     def has_updates(self):
-        self.logger.debug('scanning...')
+        self.logger.debug('checking if new files exist...')
 
-        try:
-            resp = requests.get('http://%s/command.cgi?op=121&TIME=%s' % (self.host, self._ts), timeout=self.timeout)
-            if resp.status_code != 200:
-                self.logger.error('invalid status code: %d' % resp.status_code)
-                return False
-        except requests.exceptions.ReadTimeout:
-            self.logger.error('timeout in request')
+        resp = requests.get('http://%s/command.cgi?op=121&TIME=%s' % (self.host, self._ts), timeout=self.timeout)
+        if resp.status_code != 200:
+            self.logger.error('invalid status code: %d' % resp.status_code)
             return False
 
         retval = resp.content
@@ -67,13 +63,9 @@ class FlashairAPI(object):
 
         self.logger.info('changes detected. analyzing...')
 
-        try:
-            resp = requests.get('http://%s/command.cgi?op=100&DIR=%s&TIME=%s' % (self.host, self.root_dir, ts), timeout=self.timeout)
-            if resp.status_code != 200:
-                self.logger.error('invalid status code: %d' % resp.status_code)
-                return []
-        except requests.exceptions.ReadTimeout:
-            self.logger.error('timeout in request')
+        resp = requests.get('http://%s/command.cgi?op=100&DIR=%s&TIME=%s' % (self.host, self.root_dir, ts), timeout=self.timeout)
+        if resp.status_code != 200:
+            self.logger.error('invalid status code: %d' % resp.status_code)
             return []
 
         retval = resp.content
@@ -101,13 +93,9 @@ class FlashairAPI(object):
 
         for subdir in subdirs:
             self.logger.debug('scanning folder %s...' % subdir)
-            try:
-                resp = requests.get('http://%s/command.cgi?op=100&DIR=%s&TIME=%s' % (self.host, subdir, ts), timeout=self.timeout)
-                if resp.status_code != 200:
-                    self.logger.error('invalid status code: %d' % resp.status_code)
-                    return []
-            except requests.exceptions.ReadTimeout:
-                self.logger.error('timeout in request')
+            resp = requests.get('http://%s/command.cgi?op=100&DIR=%s&TIME=%s' % (self.host, subdir, ts), timeout=self.timeout)
+            if resp.status_code != 200:
+                self.logger.error('invalid status code: %d' % resp.status_code)
                 return []
 
             retval = resp.content
@@ -134,13 +122,9 @@ class FlashairAPI(object):
 
         self.logger.info('downloading file %s...' % file)
         
-        try:
-            resp = requests.get('http://%s%s' % (self.host, file), timeout=self.timeout)
-            if resp.status_code != 200:
-                self.logger.error('invalid status code: %d' % resp.status_code)
-                return
-        except requests.exceptions.ReadTimeout:
-            self.logger.error('timeout in request')
+        resp = requests.get('http://%s%s' % (self.host, file), timeout=self.timeout)
+        if resp.status_code != 200:
+            self.logger.error('invalid status code: %d' % resp.status_code)
             return
 
         self.logger.info('downloaded %.2f MB.' % (len(resp.content) / 1024.0 / 1024))
@@ -156,9 +140,9 @@ class FlashairAPI(object):
 
         target_file = '%s/%s' % (path, filename)
 
-        fh = open(target_file, 'wb')
-        fh.write(resp.content)
-        fh.close()
+        with open(target_file, 'wb') as fh:
+            fh.write(resp.content)
+
         self.logger.debug('file saved.')
 
         self.synced_files.append(file)
