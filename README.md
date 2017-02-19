@@ -32,9 +32,9 @@ The tool should work out of the box using the default configuration. Adjustments
 
 ## Start
 
-Make sure you are connected to the FlashAir network. Also make sure you're still inside your virtualenv.
+Make sure you are connected to the FlashAir network.
 
-To start scanning for new files on your SD card (and download and display them of course), execute:
+To start scanning for new files on your SD card (and download and display them), execute:
 
 ### Linux // macOS
 ```
@@ -48,4 +48,5 @@ pyenv\Scripts\python.exe src\tethered.py
 ```
 
 Now pick your camera and shoot. Wait a few seconds for the pictures to be downloaded and displayed on your screen.
-All pictures are downloaded to the `pics/` folder by default.
+
+*Note: Pictures are downloaded to the `pics/` folder by default.*
