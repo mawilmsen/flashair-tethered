@@ -21,4 +21,8 @@ IMAGE_VIEWER_COMMANDS = {
         'start': 'start "" /max %(image_file_path)s',       # lets windows decide which application to launch
         'close': 'taskkill /IM i_view64.exe'                 # optional. how to close image viewer window. Change or remove if you use a different application than IrfanViewer.
     },
+    'Darwin': {
+        'start': 'open -a Preview "%(image_file_path)s"; /usr/bin/osascript -e \'tell application "Preview"\' -e "activate" -e \'tell application "System Events"\' -e \'keystroke "f" using {control down, command down}\' -e "end tell" -e "end tell"',
+        'close': 'killall Preview'
+    }
 }
