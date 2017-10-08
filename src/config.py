@@ -26,6 +26,6 @@ IMAGE_VIEWER_COMMANDS = {
         'close': 'killall Preview'
     },
     'Linux': {
-        'start': 'eog -w "%(image_file_path)s"',            # default image viewer for GNOME, -w opens images in single window
+        'start': 'eog -w "%(image_file_path)s"&',            # default image viewer for GNOME, -w opens images in single window
 #        'close': 'killall eog'
 }
