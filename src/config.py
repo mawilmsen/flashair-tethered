@@ -24,5 +24,9 @@ IMAGE_VIEWER_COMMANDS = {
     'Darwin': {
         'start': 'open -a Preview "%(image_file_path)s"; /usr/bin/osascript -e \'tell application "Preview"\' -e "activate" -e \'tell application "System Events"\' -e \'keystroke "f" using {control down, command down}\' -e "end tell" -e "end tell"',
         'close': 'killall Preview'
+    },
+    'Linux': {
+        'start': 'eog -w "%(image_file_path)s"&',            # default image viewer for GNOME, -w opens images in single window
+#        'close': 'killall eog'
     }
 }
